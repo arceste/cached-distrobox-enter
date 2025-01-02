@@ -9,7 +9,7 @@ Through trial and error, I discovered that if I launched through podman directly
 ## How to install it and make it work
 Put it somewhere in your '$PATH' then run it. I recommend your `.local/bin` folder if you have that added. Alternatively, you can run it with `./distrobox-enter-c` all the time which would be annoying and tedious.
 | Command | What it will do |
-| :--- | ---: |
+| :--- | :--- |
 | `distrobox-enter-c <container-name> <command>` | Run the command you provide in the container you provide |
 | `distrobox-enter-c <container-name>` | Runs `distrobox-enter <container-name>`. Not very exciting |
 | `distrobox-enter-c` | Gives you an error. Probably could do something better, I dunno |
