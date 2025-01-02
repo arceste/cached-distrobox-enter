@@ -13,7 +13,7 @@ container_running=$([[ -n $(podman container ls --noheading -f name=$container -
 
 rebuild_cache () {
 	printf "Rebuilding cache...\n"
-	text=$(distrobox-enter -d $container | cat | tr '\n' ' ' | xargs | perl -pe 's/ --/ \\\n--/g; s/^/podman /; s/(.*LS_COLORS=)(.*)( \\)/\1\"\2\"\3/')
+	text=$(distrobox-enter -d $container | cat | tr '\n' ' ' | xargs | perl -pe 's/ --/ \\\n--/g; s/^/podman /; s/(?<==)(.*;.*)(?= )/\"\1\"/g')
 	printf "#!/bin/bash\n$text \$app" > $f
 	distrobox-enter $container -- $app
 }
