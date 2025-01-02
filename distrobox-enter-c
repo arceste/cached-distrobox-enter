@@ -1,0 +1,52 @@
+#!/bin/bash
+
+container=$(echo $1 | xargs)
+shift
+app=$(echo $@ | xargs)
+
+f="$HOME/.cache/distrobox/$container.cache"
+
+cache_threshold=$((60*60*24*7))
+current_time=$(date +%s)
+cache_path=$([[ -f $f ]] && echo $f || echo 'NA')
+container_running=$([[ -n $(podman container ls --noheading -f name=$container -f status=running) ]] && echo 1 || echo 0)
+
+rebuild_cache () {
+	printf "Rebuilding cache...\n"
+	text=$(distrobox-enter -d $container | cat | tr '\n' ' ' | xargs | perl -pe 's/ --/ \\\n--/g; s/^/podman /; s/(.*LS_COLORS=)(.*)( \\)/\1\"\2\"\3/')
+	printf "#!/bin/bash\n$text \$app" > $f
+	distrobox-enter $container -- $app
+}
+
+run_with_app () {
+	if [[ $cache_path != 'NA' ]]; then
+		printf "Cache found at $f\n"
+		cache_time=$(stat -c %Y $cache_path)
+		if [[ $current_time > $(($cache_time+$cache_threshold)) ]]; then 	# If cache is outdated, rebuild it and launch
+			printf "Cache old. "
+			rebuild_cache
+		else
+			if [[ $container_running == 1 ]]; then				# If the cache isn't outdated and container is running, source the cache file
+				printf "Container $container is running\n"
+				source $cache_path
+			else								# If the container isn't running, might as well rebuild the cache?
+				printf "Container $container is not running. "
+				rebuild_cache
+			fi
+
+		fi
+	else
+		printf "No cache found at $f\n"
+		rebuild_cache
+	fi
+}
+
+if [[ -n $container ]]; then
+	if [[ -n $app ]]; then
+		run_with_app
+	else
+		distrobox-enter $container
+	fi
+else
+	echo "No container provided. Aborting"
+fi
