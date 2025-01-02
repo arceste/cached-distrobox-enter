@@ -1,4 +1,7 @@
 # cached-distrobox-enter
+**NOTE:**\
+This worked until I restarted my computer, so I have no idea why it doesn't now. Keep that in mind if you try to use it.\
+\
 This is a very hack-and-slash script to cache the podman command that distrobox-enter generates.\
 I put this together to solve an exceptionally minor issue I had with the distrobox-enter command. The amount of time I have spent on this script is highly disproportionate to the amount of time I actually lost to the minor issue that it solves.
 
